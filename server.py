@@ -14,8 +14,8 @@ from PIL import Image
 
 from protocol import send_frame
 
-DEFAULT_FPS = 10
-DEFAULT_JPEG_QUALITY = 70
+DEFAULT_FPS = 60
+DEFAULT_JPEG_QUALITY = 240
 
 @dataclass
 class ServerConfig:
@@ -28,7 +28,7 @@ class ServerConfig:
 def parse_args() -> ServerConfig:
     parser = argparse.ArgumentParser(description="CMPT 371 Remote Display TCP Server")
     parser.add_argument("--host", default="0.0.0.0", help="Bind host (default: 0.0.0.0)")
-    parser.add_argument("--port", type=int, default=5000, help="Bind port (default: 5000)")
+    parser.add_argument("--port", type=int, default=5001, help="Bind port (default: 5001)")
     args = parser.parse_args()
     return ServerConfig(host=args.host, port=args.port)
 
@@ -54,14 +54,18 @@ def client_stream_loop(conn: socket.socket, addr: tuple[str, int], config: Serve
         with mss.mss() as sct:
             monitor = sct.monitors[1]
             while True:
-                started = time.perf_counter()
-                frame = capture_frame_bytes(sct, monitor, DEFAULT_JPEG_QUALITY)
-                send_frame(conn, frame)
+                try:
+                    started = time.perf_counter()
+                    frame = capture_frame_bytes(sct, monitor, DEFAULT_JPEG_QUALITY)
+                    send_frame(conn, frame)
 
-                elapsed = time.perf_counter() - started
-                sleep_for = interval - elapsed
-                if sleep_for > 0:
-                    time.sleep(sleep_for)
+                    elapsed = time.perf_counter() - started
+                    sleep_for = interval - elapsed
+                    if sleep_for > 0:
+                        time.sleep(sleep_for)
+                except (BrokenPipeError, OSError):
+                    print(f"[-] Client disconnected: {addr[0]}:{addr[1]}")
+                    break
 
 # Create the listening TCP socket and accept clients forever.
 # For each accepted connection, start a daemon thread running client_stream_loop.

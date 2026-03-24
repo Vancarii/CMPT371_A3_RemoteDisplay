@@ -24,7 +24,7 @@ class ClientConfig:
 def parse_args() -> ClientConfig:
     parser = argparse.ArgumentParser(description="CMPT 371 Remote Display TCP Client")
     parser.add_argument("--host", required=True, help="Server IP or hostname")
-    parser.add_argument("--port", type=int, default=5000, help="Server port (default: 5000)")
+    parser.add_argument("--port", type=int, default=5001, help="Server port (default: 5001)")
     args = parser.parse_args()
     return ClientConfig(server_host=args.host, server_port=args.port)
 
@@ -106,7 +106,6 @@ def run_client(config: ClientConfig) -> None:
 
 # Client entrypoint with top-level error reporting.
 # Separates network errors from environment issues (e.g., missing Tk).
-# Keeps terminal output simple during demos.
 def main() -> None:
     config = parse_args()
     try:
