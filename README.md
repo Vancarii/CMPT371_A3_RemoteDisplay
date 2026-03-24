@@ -1,4 +1,4 @@
-# CMPT 371 A3 Socket Programming `Remote Display`
+# CMPT 371 A3 Socket Programming `Remote Screen Sharing`
 
 **Course:** CMPT 371 - Data Communications & Networking  
 **Instructor:** Mirza Zaeem Baig  
@@ -6,10 +6,10 @@
 
 ## Group Members
 
-| Name         | Student ID | Email                     |
-| :----------- | :--------- | :------------------------ |
-| Yecheng Wang | 301540271  | ywa415@sfu.ca             |
-| Owen Twa     | 301475435  | john.smith@university.edu |
+| Name         | Student ID | Email         |
+| :----------- | :--------- | :------------ |
+| Yecheng Wang | 301540271  | ywa415@sfu.ca |
+| Owen Twa     | 301475435  | ot@sfu.ca     |
 
 ## 1) Project Overview
 
@@ -20,7 +20,7 @@ This project implements a **Remote Desktop Display Viewer** using Python Socket 
 - The server streams frames to one or more **viewer clients** over TCP.
 - Each client displays the received frames in a live Tkinter window.
 
-## 2) Architecture Decision (Client-Server vs Peer-to-Peer)
+## 2) Architecture Decision
 
 We chose **client-server** architecture.
 
@@ -48,11 +48,11 @@ This avoids TCP message-boundary problems.
 Defined limitations for this project scope:
 
 - **No encryption/authentication:** stream is not end-to-end encrypted.
-- **Read-only viewer:** no keyboard/mouse remote control.
-- **LAN-oriented setup:** no NAT traversal or internet relay.
+- **One way screen sharing:** screen sharing only from server to clients and cannot be reversed unless the program is stopped and re-ran.
+- **Open broadcast to any connected client:** without a proper GUI application with user accounts or link sharing, anyone with the port number can join as a client viewer.
+- **Read-only viewer:** no keyboard/mouse remote control, and mouse is not displayed on the screen viewer.
 - **Performance trade-off:** higher FPS and JPEG quality increase CPU/network usage.
 - **Disconnect handling:** if server/client disconnects, stream stops for that connection.
-- **Platform permissions:** on macOS, screen recording permission may be required for capture.
 
 ## 5) Fresh Environment Setup
 
@@ -78,14 +78,14 @@ Open two terminals in the project root.
 
 ```bash
 source .venv/bin/activate
-python server.py --host 0.0.0.0 --port 5001
+python server.py
 ```
 
 ### Terminal B - Start viewer client (same machine)
 
 ```bash
 source .venv/bin/activate
-python client.py --host 127.0.0.1 --port 5001
+python client.py --host 127.0.0.1
 ```
 
 ### Cross-machine run (same LAN)
@@ -137,13 +137,6 @@ python client.py --host 127.0.0.1 --port 5002
 ## 8) Video Demo
 
 2-minute demo link: **(add your final link here)**
-
-The demo should show:
-
-1. Starting server.
-2. Connecting one or more clients.
-3. Live frame exchange.
-4. Termination/disconnection behavior.
 
 ## 9) Project Structure
 
