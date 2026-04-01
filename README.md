@@ -54,7 +54,7 @@ Defined limitations for this project scope:
 - **Performance trade-off:** higher FPS and JPEG quality increase CPU/network usage.
 - **Disconnect handling:** if server/client disconnects, stream stops for that connection.
 
-## 5) Fresh Environment Setup - Mac/Linux
+## 5) Fresh Environment Setup
 
 ### Prerequisites
 
@@ -66,9 +66,19 @@ Defined limitations for this project scope:
 
 2. From project root:
 
+Mac/Linux:
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+Windows:
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -76,8 +86,11 @@ pip install -r requirements.txt
 
 Before starting, ensure any terminals running this program first activates the virtual environment if not activated yet:
 
-```
+```bash
+# mac/linux
 source .venv/bin/activate
+# windows
+.venv\Scripts\activate
 ```
 
 We have 2 options to run the program. Option 1 is to run the screen sharer and viewer on the same device locally. Option 2 is to share screen between 2 separate devices.
@@ -107,7 +120,11 @@ Before beginning, ensure both client and server devices are on the same wifi.
 1. If server and client are on different machines, first get the server device ip address:
 
 ```bash
+# mac / linux
 ipconfig getifaddr en0
+# windows
+ipconfig
+# then look for the IPv4 Address
 ```
 
 note down the result to be entered on the client device, this is the `<SERVER_IP>`
@@ -128,49 +145,6 @@ python client.py --host <SERVER_IP> --port 5001
 # Example:
 # python client.py --host 172.16.108.98 --port 5001
 ```
-
-### 5) Fresh Environment Setup - Windows
-
-### Prerequisites
-
-Python 3.10+ (tested with modern Python 3.x).
-
-### Install
-
-From project root:
-
-```python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-### 6) Step-by-Step Run Guide (Local First)
-
-Open two terminals in the project root.
-
-### Terminal A - Start server (host machine)
-
-```.venv\Scripts\activate
-python server.py
-```
-
-### Terminal B - Start viewer client (same machine)
-
-```.venv\Scripts\activate
-python client.py --host 127.0.0.1
-```
-
-### Cross-machine run (same LAN)
-
-If server and client are on different machines, keep the server command the same and run this on client machine:
-
-```.venv\Scripts\activate
-python client.py --host <SERVER_LAN_IP> --port 5001
-```
-
-Example:
-
-```python client.py --host 192.168.1.20 --port 5001```
 
 ## 7) Troubleshooting Run Errors
 
