@@ -54,7 +54,7 @@ Defined limitations for this project scope:
 - **Performance trade-off:** higher FPS and JPEG quality increase CPU/network usage.
 - **Disconnect handling:** if server/client disconnects, stream stops for that connection.
 
-## 5) Fresh Environment Setup
+## 5) Fresh Environment Setup - Mac/Linux
 
 ### Prerequisites
 
@@ -102,6 +102,49 @@ Example:
 ```bash
 python client.py --host 192.168.1.20 --port 5001
 ```
+
+### 5) Fresh Environment Setup - Windows
+
+### Prerequisites
+
+Python 3.10+ (tested with modern Python 3.x).
+
+### Install
+
+From project root:
+
+```python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 6) Step-by-Step Run Guide (Local First)
+
+Open two terminals in the project root.
+
+### Terminal A - Start server (host machine)
+
+```.venv\Scripts\activate
+python server.py
+```
+
+### Terminal B - Start viewer client (same machine)
+
+```.venv\Scripts\activate
+python client.py --host 127.0.0.1
+```
+
+### Cross-machine run (same LAN)
+
+If server and client are on different machines, keep the server command the same and run this on client machine:
+
+```.venv\Scripts\activate
+python client.py --host <SERVER_LAN_IP> --port 5001
+```
+
+Example:
+
+```python client.py --host 192.168.1.20 --port 5001```
 
 ## 7) Troubleshooting Run Errors
 
