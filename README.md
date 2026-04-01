@@ -58,11 +58,13 @@ Defined limitations for this project scope:
 
 ### Prerequisites
 
-- Python 3.10+ (tested with modern Python 3.x).
+- Python 3.10+
 
 ### Install
 
-From project root:
+1. Clone this repo
+
+2. From project root:
 
 ```bash
 python3 -m venv .venv
@@ -70,37 +72,61 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 6) Step-by-Step Run Guide (Local First)
+## 6) Step-by-Step Run Guide
+
+Before starting, ensure any terminals running this program first activates the virtual environment if not activated yet:
+
+```
+source .venv/bin/activate
+```
+
+We have 2 options to run the program. Option 1 is to run the screen sharer and viewer on the same device locally. Option 2 is to share screen between 2 separate devices.
+
+### Option 1: Running locally
 
 Open two terminals in the project root.
 
-### Terminal A - Start server (host machine)
+#### Terminal A - Start server (host machine)
 
 ```bash
-source .venv/bin/activate
+# ensure venv is activated
 python server.py
 ```
 
-### Terminal B - Start viewer client (same machine)
+#### Terminal B - Start viewer client (same machine)
 
 ```bash
-source .venv/bin/activate
+# ensure venv is activated
 python client.py --host 127.0.0.1
 ```
 
-### Cross-machine run (same LAN)
+### Cross-machine run (same LAN/Wifi)
 
-If server and client are on different machines, keep the server command the same and run this on client machine:
+Before beginning, ensure both client and server devices are on the same wifi.
+
+1. If server and client are on different machines, first get the server device ip address:
 
 ```bash
-source .venv/bin/activate
-python client.py --host <SERVER_LAN_IP> --port 5001
+ipconfig getifaddr en0
 ```
 
-Example:
+note down the result to be entered on the client device, this is the `<SERVER_IP>`
+
+2. start the server on that same device:
 
 ```bash
-python client.py --host 192.168.1.20 --port 5001
+# ensure venv is activated
+python server.py
+```
+
+3. next, run this on client machine where `<SERVER_IP>` is the value retrieved from step 1:
+
+```bash
+# ensure venv is activated
+python client.py --host <SERVER_IP> --port 5001
+
+# Example:
+# python client.py --host 172.16.108.98 --port 5001
 ```
 
 ## 7) Troubleshooting Run Errors
