@@ -46,14 +46,15 @@ def capture_frame_bytes(sct: mss.mss, monitor: dict, jpeg_quality: int) -> bytes
 # Handle one connected client in a dedicated thread.
 # Captures frames, sends them with length-prefix framing, and throttles by FPS.
 # Exits naturally when socket operations fail/disconnect.
-def client_stream_loop(conn, addr, config, log=print):
+def client_stream_loop(conn, addr, config, stop_event, log=print):
     log(f"[+] Client connected: {addr[0]}:{addr[1]}")
 
     interval = 1.0 / DEFAULT_FPS
     with conn:
         with mss.mss() as sct:
             monitor = sct.monitors[1]
-            while True:
+
+            while not stop_event.is_set():
                 try:
                     started = time.perf_counter()
                     frame = capture_frame_bytes(sct, monitor, DEFAULT_JPEG_QUALITY)
@@ -63,9 +64,12 @@ def client_stream_loop(conn, addr, config, log=print):
                     sleep_for = interval - elapsed
                     if sleep_for > 0:
                         time.sleep(sleep_for)
+
                 except (BrokenPipeError, OSError):
                     log(f"[-] Client disconnected: {addr[0]}:{addr[1]}")
                     break
+
+    log(f"[!] Closing connection: {addr[0]}:{addr[1]}")
 
 # Create the listening TCP socket and accept clients forever.
 # For each accepted connection, start a daemon thread running client_stream_loop.
@@ -87,7 +91,7 @@ def run_server(config: ServerConfig, stop_event: threading.Event, log=print) -> 
                 conn, addr = listener.accept()
                 thread = threading.Thread(
                     target=client_stream_loop,
-                    args=(conn, addr, config, log),
+                    args=(conn, addr, config, stop_event, log),
                     daemon=True,
                 )
                 thread.start()
