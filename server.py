@@ -46,8 +46,8 @@ def capture_frame_bytes(sct: mss.mss, monitor: dict, jpeg_quality: int) -> bytes
 # Handle one connected client in a dedicated thread.
 # Captures frames, sends them with length-prefix framing, and throttles by FPS.
 # Exits naturally when socket operations fail/disconnect.
-def client_stream_loop(conn: socket.socket, addr: tuple[str, int], config: ServerConfig) -> None:
-    print(f"[+] Client connected: {addr[0]}:{addr[1]}")
+def client_stream_loop(conn, addr, config, log=print):
+    log(f"[+] Client connected: {addr[0]}:{addr[1]}")
 
     interval = 1.0 / DEFAULT_FPS
     with conn:
@@ -64,33 +64,38 @@ def client_stream_loop(conn: socket.socket, addr: tuple[str, int], config: Serve
                     if sleep_for > 0:
                         time.sleep(sleep_for)
                 except (BrokenPipeError, OSError):
-                    print(f"[-] Client disconnected: {addr[0]}:{addr[1]}")
+                    log(f"[-] Client disconnected: {addr[0]}:{addr[1]}")
                     break
 
 # Create the listening TCP socket and accept clients forever.
 # For each accepted connection, start a daemon thread running client_stream_loop.
 # This allows multiple viewers to consume the stream concurrently.
-def run_server(config: ServerConfig) -> None:
+def run_server(config: ServerConfig, stop_event: threading.Event, log=print) -> None:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
         listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         listener.bind((config.host, config.port))
         listener.listen()
+        listener.settimeout(1.0)
 
-        print("=" * 60)
-        print("CMPT 371 - Remote Display TCP Server")
-        print(f"Listening on {config.host}:{config.port}")
-        print(f"Stream settings: {DEFAULT_FPS} FPS, JPEG quality={DEFAULT_JPEG_QUALITY}")
-        print("Press Ctrl+C to stop")
-        print("=" * 60)
+        log("=" * 60)
+        log("CMPT 371 - Remote Display TCP Server")
+        log(f"Listening on {config.host}:{config.port}")
+        log("=" * 60)
 
-        while True:
-            conn, addr = listener.accept()
-            thread = threading.Thread(
-                target=client_stream_loop,
-                args=(conn, addr, config),
-                daemon=True,
-            )
-            thread.start()
+        while not stop_event.is_set():
+            try:
+                conn, addr = listener.accept()
+                thread = threading.Thread(
+                    target=client_stream_loop,
+                    args=(conn, addr, config, log),
+                    daemon=True,
+                )
+                thread.start()
+            except socket.timeout:
+                continue
+
+        log("[!] Server shutting down...")
+        log("[✓] Server stopped.")
 
 # Server entrypoint for startup and top-level exception handling.
 # Maps keyboard interrupt and connection-level failures to readable logs.
