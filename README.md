@@ -9,7 +9,7 @@
 | Name         | Student ID | Email         |
 | :----------- | :--------- | :------------ |
 | Yecheng Wang | 301540271  | ywa415@sfu.ca |
-| Owen Twa     | 301475435  | ot@sfu.ca     |
+| Owen Twa     | 301475435  | ojt@sfu.ca     |
 
 ## 1) Project Overview
 
