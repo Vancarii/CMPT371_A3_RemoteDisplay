@@ -190,22 +190,28 @@ python viewer.py --host 127.0.0.1 --port 5002
 
 Note: there is a voice over but it is slightly quiet so turn up the volume.
 
-2-minute demo link: [https://youtu.be/VTHJhOgj5vw?si=uno1VkYrN9sGeEm0](https://youtu.be/VTHJhOgj5vw?si=uno1VkYrN9sGeEm0)
+Link to Youtube: [https://youtu.be/VTHJhOgj5vw?si=uno1VkYrN9sGeEm0](https://youtu.be/VTHJhOgj5vw?si=uno1VkYrN9sGeEm0)
+
+<video width="600" controls>
+  <source src="CMPT371-RemoteDisplay-Demo.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
 ## 9) Project Structure
 
 ```text
 CMPT371_A3_RemoteDisplay/
-├── sender.py
-├── viewer.py
 ├── client/
 │   ├── __init__.py
-│   ├── client.py
-│   └── viewer_ui.py
+│   ├── client_ui.py
+│   └── client.py
 ├── server/
 │   ├── __init__.py
-│   ├── server.py
-│   └── ui.py
+│   ├── server_ui.py
+│   └── server.py
+├── CMPT371-RemoteDisplay-Demo.mp4
+├── sender.py
+├── viewer.py
 ├── protocol.py
 ├── requirements.txt
 └── README.md
