@@ -188,7 +188,9 @@ python viewer.py --host 127.0.0.1 --port 5002
 
 ## 8) Video Demo
 
-2-minute demo link: **(add your final link here)**
+Note: there is a voice over but it is slightly quiet so turn up the volume.
+
+2-minute demo link: [https://youtu.be/VTHJhOgj5vw?si=uno1VkYrN9sGeEm0](https://youtu.be/VTHJhOgj5vw?si=uno1VkYrN9sGeEm0)
 
 ## 9) Project Structure
 
