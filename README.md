@@ -192,10 +192,8 @@ Note: there is a voice over but it is slightly quiet so turn up the volume.
 
 Link to Youtube: [https://youtu.be/VTHJhOgj5vw?si=uno1VkYrN9sGeEm0](https://youtu.be/VTHJhOgj5vw?si=uno1VkYrN9sGeEm0)
 
-<video width="600" controls>
-  <source src="CMPT371-RemoteDisplay-Demo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+<video width="600" src="https://github.com/user-attachments/assets/593be4c8-0825-48d4-a62a-816fa4bfc9c0"></video>
+
 
 ## 9) Project Structure
 
