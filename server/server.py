@@ -22,9 +22,9 @@ class ServerConfig:
     host: str
     port: int
 
-# Parse CLI options for server endpoint only.
-# Returns a ServerConfig used by the runtime loop.
-# Stream quality/performance settings are fixed in code for simpler usage.
+# Parse CLI options for server endpoint only
+# Returns a ServerConfig used by the runtime loop
+# Stream quality/performance settings are fixed in code for simpler usage
 def parse_args() -> ServerConfig:
     parser = argparse.ArgumentParser(description="CMPT 371 Remote Display TCP Server")
     parser.add_argument("--host", default="0.0.0.0", help="Bind host (default: 0.0.0.0)")
@@ -32,9 +32,9 @@ def parse_args() -> ServerConfig:
     args = parser.parse_args()
     return ServerConfig(host=args.host, port=args.port)
 
-# Capture one monitor frame and compress it to JPEG bytes.
-# Uses mss for fast screen grabbing and Pillow for encoding.
-# Output bytes are sent directly over the TCP framing protocol.
+# Capture one monitor frame and compress it to JPEG bytes
+# Uses mss for fast screen grabbing and Pillow for encoding
+# Output bytes are sent directly over the TCP framing protocol
 def capture_frame_bytes(sct: mss.mss, monitor: dict, jpeg_quality: int) -> bytes:
     raw = sct.grab(monitor)
     image = Image.frombytes("RGB", raw.size, raw.rgb)
@@ -43,9 +43,9 @@ def capture_frame_bytes(sct: mss.mss, monitor: dict, jpeg_quality: int) -> bytes
     image.save(buffer, format="JPEG", quality=jpeg_quality, optimize=True)
     return buffer.getvalue()
 
-# Handle one connected client in a dedicated thread.
-# Captures frames, sends them with length-prefix framing, and throttles by FPS.
-# Exits naturally when socket operations fail/disconnect.
+# Handle one connected client in a dedicated thread
+# Captures frames, sends them with length-prefix framing, and throttles by FPS
+# Exits naturally when socket operations fail/disconnect
 def client_stream_loop(conn, addr, config, stop_event, log=print):
     log(f"[+] Client connected: {addr[0]}:{addr[1]}")
 
@@ -71,9 +71,9 @@ def client_stream_loop(conn, addr, config, stop_event, log=print):
 
     log(f"[!] Closing connection: {addr[0]}:{addr[1]}")
 
-# Create the listening TCP socket and accept clients forever.
-# For each accepted connection, start a daemon thread running client_stream_loop.
-# This allows multiple viewers to consume the stream concurrently.
+# Create the listening TCP socket and accept clients forever
+# For each accepted connection, start a daemon thread running client_stream_loop
+# This allows multiple viewers to consume the stream concurrently
 def run_server(config: ServerConfig, stop_event: threading.Event, log=print) -> None:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
         listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -101,9 +101,9 @@ def run_server(config: ServerConfig, stop_event: threading.Event, log=print) -> 
         log("[!] Server shutting down...")
         log("[✓] Server stopped.")
 
-# Server entrypoint for startup and top-level exception handling.
-# Maps keyboard interrupt and connection-level failures to readable logs.
-# Keeps CLI behavior predictable for demo and grading.
+# Server entrypoint for startup and top-level exception handling
+# Maps keyboard interrupt and connection-level failures to readable logs
+# Keeps CLI behavior predictable for demo and grading
 def main() -> None:
     config = parse_args()
     try:

@@ -9,7 +9,7 @@
 | Name         | Student ID | Email         |
 | :----------- | :--------- | :------------ |
 | Yecheng Wang | 301540271  | ywa415@sfu.ca |
-| Owen Twa     | 301475435  | ojt@sfu.ca     |
+| Owen Twa     | 301475435  | ojt@sfu.ca    |
 
 ## 1) Project Overview
 
@@ -19,6 +19,8 @@ This project implements a **Remote Desktop Display Viewer** using Python Socket 
 - The server compresses each frame to JPEG.
 - The server streams frames to one or more **viewer clients** over TCP.
 - Each client displays the received frames in a live Tkinter window.
+- The client socket stays open to receiving while it is running even if server disconnects.
+- The server can initiate starting and stopping screen share in the UI.
 
 ## 2) Architecture Decision
 
@@ -52,7 +54,6 @@ Defined limitations for this project scope:
 - **Open broadcast to any connected client:** without a proper GUI application with user accounts or link sharing, anyone with the port number can join as a client viewer.
 - **Read-only viewer:** no keyboard/mouse remote control, and mouse is not displayed on the screen viewer.
 - **Performance trade-off:** higher FPS and JPEG quality increase CPU/network usage.
-- **Disconnect handling:** if server/client disconnects, stream stops for that connection.
 
 ## 5) Fresh Environment Setup
 
@@ -103,14 +104,14 @@ Open two terminals in the project root.
 
 ```bash
 # ensure venv is activated
-python server.py
+python sender.py
 ```
 
 #### Terminal B - Start viewer client (same machine)
 
 ```bash
 # ensure venv is activated
-python client.py --host 127.0.0.1
+python viewer.py --host 127.0.0.1
 ```
 
 ### Cross-machine run (same LAN/Wifi)
@@ -133,17 +134,17 @@ note down the result to be entered on the client device, this is the `<SERVER_IP
 
 ```bash
 # ensure venv is activated
-python server.py
+python sender.py
 ```
 
 3. next, run this on client machine where `<SERVER_IP>` is the value retrieved from step 1:
 
 ```bash
 # ensure venv is activated
-python client.py --host <SERVER_IP> --port 5001
+python viewer.py --host <SERVER_IP> --port 5001
 
 # Example:
-# python client.py --host 172.16.108.98 --port 5001
+# python viewer.py --host 172.16.108.98 --port 5001
 ```
 
 ## 7) Troubleshooting Run Errors
@@ -172,9 +173,17 @@ You must either repair your downloaded python or reinstall it, tkinter should al
 Use another port, and keep server/client ports the same:
 
 ```bash
-source .venv/bin/activate
-python server.py --host 0.0.0.0 --port 5002
-python client.py --host 127.0.0.1 --port 5002
+# ensure venv activated
+python sender.py
+```
+
+In the server UI, set the port field to `5002` (or another free port), then start sharing.
+
+Then make sure the viewer port matches:
+
+```bash
+# ensure venv activated
+python viewer.py --host 127.0.0.1 --port 5002
 ```
 
 ## 8) Video Demo
@@ -185,17 +194,24 @@ python client.py --host 127.0.0.1 --port 5002
 
 ```text
 CMPT371_A3_RemoteDisplay/
-├── client.py
+├── sender.py
+├── viewer.py
+├── client/
+│   ├── __init__.py
+│   ├── client.py
+│   └── viewer_ui.py
+├── server/
+│   ├── __init__.py
+│   ├── server.py
+│   └── ui.py
 ├── protocol.py
-├── server.py
 ├── requirements.txt
 └── README.md
 ```
 
 ## 10) Academic Integrity & References
 
-- **Code Origin:** Original implementation by group members for CMPT 371 A3.
-- **GenAI Usage:** GitHub Copilot used for documentation drafting.
+- **GenAI Usage:** GitHub Copilot used for UI help.
 - **References:**
   - https://docs.python.org/3/howto/sockets.html
   - https://pypi.org/project/mss/

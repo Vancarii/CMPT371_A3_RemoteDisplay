@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import scrolledtext
 import threading
 
-from server import run_server, ServerConfig
+from server.server import run_server, ServerConfig
 
 
 class ServerUI:
@@ -82,7 +82,11 @@ class ServerUI:
         self.root.destroy()
 
 
-if __name__ == "__main__":
+def main() -> None:
     root = tk.Tk()
     app = ServerUI(root)
     root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
