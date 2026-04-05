@@ -11,12 +11,11 @@
 | Yecheng Wang | 301540271  | ywa415@sfu.ca |
 | Owen Twa     | 301475435  | ojt@sfu.ca    |
 
-## 1) Project Overview
+## 1) Project Description/Overview
 
-This project implements a **Remote Desktop Display Viewer** using Python Socket API.
+This project implements a **Remote Desktop Display Viewer** using Python Socket API, allowing one device to share their screen to other devices to be viewed. This can be ran on the same device or across devices on the same network, and we will demonstrate steps to do both. We used TCP instead of UDP to ensure the live-feed data is sent reliably and in-order.
 
-- The **server** captures its screen continuously.
-- The server compresses each frame to JPEG.
+- The **server** captures the screen continuously, compressing each frame to JPEG.
 - The server streams frames to one or more **viewer clients** over TCP.
 - Each client displays the received frames in a live Tkinter window.
 - The client socket stays open to receiving while it is running even if server disconnects.
@@ -28,14 +27,14 @@ We chose **client-server** architecture.
 
 ### Why client-server is better here
 
-1. **Single source of truth:** only one machine (host) provides the desktop stream.
+1. **Single source of truth:** only one machine (host) provides the desktop stream, similar to other applications like Zoom or Slack.
 2. **Simpler role separation:** server = capture/stream, client = receive/display.
 3. **Easier scaling:** multiple viewers can connect to one host.
-4. **Cleaner demo/testing:** one server terminal + one or more client terminals.
+4. **Cleaner demo:** one server terminal + one or more client terminals.
 
 ## 3) Protocol Details
 
-The stream protocol is binary over TCP:
+We created a specific stream protocol over TCP:
 
 1. Capture one frame from the host display.
 2. Compress frame to JPEG bytes.
@@ -43,29 +42,30 @@ The stream protocol is binary over TCP:
 4. Send the JPEG payload bytes.
 5. Client reads exactly 8 bytes, then exactly payload length bytes, then renders the image.
 
-This avoids TCP message-boundary problems.
+The header contains the size of the JPEG payload in bytes, which tells the receiver how many bytes to read for the full frame. This is necessary because TCP streams data as a continous byte stream with no message boundaries, and the client would not know where each frame ends.
 
 ## 4) Limitations / Edge Cases
 
 Defined limitations for this project scope:
 
-- **No encryption/authentication:** stream is not end-to-end encrypted.
-- **One way screen sharing:** screen sharing only from server to clients and cannot be reversed unless the program is stopped and re-ran.
-- **Open broadcast to any connected client:** without a proper GUI application with user accounts or link sharing, anyone with the port number can join as a client viewer.
-- **Read-only viewer:** no keyboard/mouse remote control, and mouse is not displayed on the screen viewer.
-- **Performance trade-off:** higher FPS and JPEG quality increase CPU/network usage.
+- **No encryption/authentication:** the screen frames are sent as plain TCP data, so they are not protected with end-to-end encryption, meaning any data could be potentially sniffed or leaked.
+- **One way screen sharing:** the server only sends its screen to clients. Clients cannot control the server or send input back, so the program is display-only.
+- **Open broadcast to any connected client:** anyone who knows the server IP address and port can connect as a viewer. There is no account system, invite link, or access control to limit who can watch the stream.
+- **Read-only viewer:** the client shows the screen image only. It does not forward keyboard or mouse events, and the mouse cursor is not drawn into the shared image, so it is not a remote desktop control tool.
+- **Multiple Display Selection:** other applications allow sharers to select which display to share from if they have multiple connected, while this program only shares the primary display.
+- **Performance trade-off:** smoother updates and higher JPEG quality make the image look better, but they also increase CPU usage and network traffic. On slower machines or weaker networks, this can reduce responsiveness.
 
 ## 5) Fresh Environment Setup
 
 ### Prerequisites
 
-- Python 3.10+
+- Python 3.10+ (with tkinter support)
 
 ### Install
 
 1. Clone this repo
 
-2. From project root:
+2. Activate virtual environment and install requirements. From project root:
 
 Mac/Linux:
 
@@ -78,7 +78,7 @@ pip install -r requirements.txt
 Windows:
 
 ```bash
-python -m venv .venv
+python -m venv .venv # or python instead of python3
 .venv\Scripts\activate
 pip install -r requirements.txt
 ```
@@ -114,7 +114,7 @@ python sender.py
 python viewer.py --host 127.0.0.1
 ```
 
-### Cross-machine run (same LAN/Wifi)
+### Option 2: Cross-machine run (same LAN/Wifi)
 
 Before beginning, ensure both client and server devices are on the same wifi.
 
@@ -193,7 +193,6 @@ Note: there is a voice over but it is slightly quiet so turn up the volume.
 Link to Youtube: [https://youtu.be/VTHJhOgj5vw?si=uno1VkYrN9sGeEm0](https://youtu.be/VTHJhOgj5vw?si=uno1VkYrN9sGeEm0)
 
 <video width="600" src="https://github.com/user-attachments/assets/593be4c8-0825-48d4-a62a-816fa4bfc9c0"></video>
-
 
 ## 9) Project Structure
 
