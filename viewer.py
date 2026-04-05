@@ -3,7 +3,7 @@ import argparse
 from client.client import ClientConfig, receiver_loop
 from client.client_ui import run_viewer
 
-# Client entry point, parse CLI args and start the viewer UI with the receiver loop.
+# Parse cli arguments for server host and port
 def parse_args() -> ClientConfig:
     parser = argparse.ArgumentParser(description="CMPT 371 Remote Display Viewer")
     parser.add_argument("--host", required=True, help="Server IP or hostname")
@@ -12,6 +12,7 @@ def parse_args() -> ClientConfig:
     return ClientConfig(server_host=args.host, server_port=args.port)
 
 
+# Gets the config argument values and runs the viewer UI
 def main() -> None:
     config = parse_args()
     try:

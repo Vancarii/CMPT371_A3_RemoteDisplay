@@ -3,15 +3,17 @@ from __future__ import annotations
 import io
 import threading
 from queue import Empty, Queue
-from typing import Callable, Literal
+from typing import Callable
 
 from PIL import Image
+from protocol import MSG_FRAME, MSG_STATUS, MessageKind, QueueMessage
 
-QueueMessage = tuple[Literal["frame", "status"], bytes | str]
-
-
-# Build and run the viewer window, then process incoming frames and status updates
+# Main entry point for the client viewer UI
+# This function creates the window, starts a background receiver thread,
+# and keeps the screen updated with status text and incoming image frames
+# It also handles clean shutdown when the user closes the window
 def run_viewer(config: object, receiver_loop: Callable) -> None:
+    # catch missing tkinter incase python was built without it
     try:
         import tkinter as tk
         from PIL import ImageTk
@@ -32,10 +34,12 @@ def run_viewer(config: object, receiver_loop: Callable) -> None:
     root.geometry("1024x768")
     root.configure(bg="#f0f0f0")
 
-    title_label, content_frame, image_label, status_label = _setup_ui(root)
+    _, content_frame, image_label, status_label = _setup_ui(root)
     tk_image_holder = {"image": None}
 
-    # Update labels when connection/stream status changes
+    # Handle text status updates from the receiver thread.
+    # This updates the status bar and also changes the center message
+    # so users can clearly see if the stream is loading or has stopped.
     def _handle_status_message(status_text: str) -> None:
         status_label.config(text=status_text)
         if status_text.startswith("Server has stopped sharing"):
@@ -48,10 +52,11 @@ def run_viewer(config: object, receiver_loop: Callable) -> None:
         elif "Receiving" in status_text:
             image_label.configure(text="Loading frames...", fg="#666")
 
-    # Decode one frame, scale it to fit the panel, and render it
+    # Convert raw frame bytes into an image and show it in the UI.
+    # The frame is resized to fit inside the display panel while
+    # keeping the original aspect ratio for better visual quality.
     def _render_frame(frame_bytes: bytes) -> None:
         image = Image.open(io.BytesIO(frame_bytes))
-        root.update_idletasks()
         max_width = content_frame.winfo_width() - 16
         max_height = content_frame.winfo_height() - 16
 
@@ -62,25 +67,31 @@ def run_viewer(config: object, receiver_loop: Callable) -> None:
         tk_image_holder["image"] = tk_image
         image_label.configure(image=tk_image, text="", fg="black")
 
-    # Route each queue message to either status handling or frame rendering
-    def _process_queue_message(kind: str, payload: bytes | str) -> None:
-        if kind == "status":
+    # Decide how to process one message from the queue.
+    # Status messages update text labels, and frame messages
+    # are drawn into the main image area.
+    def _process_queue_message(kind: MessageKind, payload: bytes | str) -> None:
+        if kind == MSG_STATUS:
             _handle_status_message(str(payload))
-        elif kind == "frame" and isinstance(payload, bytes):
+        elif kind == MSG_FRAME and isinstance(payload, bytes):
             _render_frame(payload)
 
-    # Poll queued messages and reschedule itself for continuous UI updates
+    # Repeatedly check for new messages without freezing the window
+    # Process only a few items per tick, so Tk always has time to
+    # handle user actions like resize and close button clicks
     def update_frame() -> None:
-        try:
-            while True:
+        for _ in range(3):
+            try:
                 kind, payload = frame_queue.get_nowait()
                 _process_queue_message(kind, payload)
-        except Empty:
-            pass
+            except Empty:
+                break
 
         root.after(15, update_frame)
 
-    # Stop the receiver thread and close the window cleanly
+    # Clean shutdown handler for the window close button
+    # It signals the background thread to stop first,
+    # then safely destroys the Tk window
     def on_close() -> None:
         stop_event.set()
         if root.winfo_exists():
@@ -91,7 +102,9 @@ def run_viewer(config: object, receiver_loop: Callable) -> None:
     root.mainloop()
 
 
-# Create and return the core UI widgets used by the viewer
+# Build the main set of UI widgets used by the viewer
+# This keeps layout code in one place and returns references
+# needed later to update the image and status text
 def _setup_ui(root) -> tuple:
     import tkinter as tk
 

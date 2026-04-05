@@ -1,11 +1,12 @@
 import tkinter as tk
 from tkinter import scrolledtext
 import threading
-
 from server.server import run_server, ServerConfig
 
-
 class ServerUI:
+    # Set up the server window and all UI controls
+    # This includes host/port inputs, start/stop buttons,
+    # a scrollable log area, and a close-window handler
     def __init__(self, root):
         self.root = root
         self.root.title("Remote Display Server")
@@ -37,7 +38,7 @@ class ServerUI:
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_exit)
 
-    # Thread-safe log function
+    # Add one message to the log box
     def log(self, message):
         def append():
             self.log_box.config(state='normal')
@@ -47,6 +48,9 @@ class ServerUI:
 
         self.root.after(0, append)  # ensures UI thread safety
 
+    # Start the server in a background thread
+    # This reads host/port from the input fields,
+    # creates the stop event, and updates button states
     def start_server(self):
         if self.server_thread and self.server_thread.is_alive():
             self.log("[!] Server already running")
@@ -69,6 +73,9 @@ class ServerUI:
         self.start_btn.config(state=tk.DISABLED)
         self.stop_btn.config(state=tk.NORMAL)
 
+    # Request server shutdown and update UI button states
+    # This sets the stop event so the server loop can exit,
+    # then re-enables Start and disables Stop.
     def stop_server(self):
         if self.stop_event:
             self.stop_event.set()
@@ -77,11 +84,14 @@ class ServerUI:
         self.start_btn.config(state=tk.NORMAL)
         self.stop_btn.config(state=tk.DISABLED)
 
+    # Handle window close by stopping the server first,
+    # then destroying the Tk root window
     def on_exit(self):
         self.stop_server()
         self.root.destroy()
 
 
+# Program entry point for the server UI
 def main() -> None:
     root = tk.Tk()
     app = ServerUI(root)
