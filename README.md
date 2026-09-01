@@ -1,15 +1,4 @@
-# CMPT 371 A3 Socket Programming `Remote Screen Sharing`
-
-**Course:** CMPT 371 - Data Communications & Networking  
-**Instructor:** Mirza Zaeem Baig  
-**Semester:** Spring 2026
-
-## Group Members
-
-| Name         | Student ID | Email         |
-| :----------- | :--------- | :------------ |
-| Yecheng Wang | 301540271  | ywa415@sfu.ca |
-| Owen Twa     | 301475435  | ojt@sfu.ca    |
+# RemDisplay — `Remote Screen Sharing`
 
 ## 1) Project Description/Overview
 
